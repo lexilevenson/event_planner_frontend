@@ -29,7 +29,7 @@ function HourSelect({ value, onChange, placeholder, minHour }: {
       required
       value={value}
       onChange={e => onChange(e.target.value)}
-      className="w-full rounded-xl px-3 py-2.5 text-sm outline-none appearance-none"
+      className="w-full rounded-xl px-4 py-3.5 text-base outline-none appearance-none"
       style={{
         background: 'var(--background)',
         border: '1.5px solid var(--gray-soft)',
@@ -318,28 +318,28 @@ export default function ParticipatePage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <h2 className="text-base font-semibold" style={{ color: 'var(--foreground)' }}>
             When are you available?
           </h2>
 
           {slots.map((slot, i) => (
-            <div key={i} className="rounded-2xl p-4 space-y-3"
+            <div key={i} className="rounded-2xl p-6 space-y-5"
               style={{ background: '#fff', border: '1px solid var(--gray-soft)' }}>
               <div className="flex justify-between items-center">
-                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--gray-mid)' }}>
+                <span className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--gray-mid)' }}>
                   Slot {i + 1}
                 </span>
                 {slots.length > 1 && (
                   <button type="button" onClick={() => removeSlot(i)}
-                    className="text-xs" style={{ color: 'var(--coral)' }}>
+                    className="text-sm font-medium" style={{ color: 'var(--coral)' }}>
                     Remove
                   </button>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--gray-mid)' }}>Date</label>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--foreground)' }}>Date</label>
                 <input
                   type="date"
                   required
@@ -347,7 +347,7 @@ export default function ParticipatePage() {
                   min={plan?.poll_window_start?.slice(0, 10)}
                   max={plan?.poll_window_end?.slice(0, 10)}
                   onChange={e => updateSlot(i, 'date', e.target.value)}
-                  className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                  className="w-full rounded-xl px-4 py-3.5 text-base outline-none"
                   style={{
                     background: 'var(--background)',
                     border: '1.5px solid var(--gray-soft)',
@@ -356,24 +356,23 @@ export default function ParticipatePage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--gray-mid)' }}>From</label>
-                  <HourSelect
-                    value={slot.time_start}
-                    onChange={v => updateSlot(i, 'time_start', v)}
-                    placeholder="Start time"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--gray-mid)' }}>To</label>
-                  <HourSelect
-                    value={slot.time_end}
-                    onChange={v => updateSlot(i, 'time_end', v)}
-                    placeholder="End time"
-                    minHour={slot.time_start ? parseInt(slot.time_start.split(':')[0]) : undefined}
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--foreground)' }}>From</label>
+                <HourSelect
+                  value={slot.time_start}
+                  onChange={v => updateSlot(i, 'time_start', v)}
+                  placeholder="Start time"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--foreground)' }}>To</label>
+                <HourSelect
+                  value={slot.time_end}
+                  onChange={v => updateSlot(i, 'time_end', v)}
+                  placeholder="End time"
+                  minHour={slot.time_start ? parseInt(slot.time_start.split(':')[0]) : undefined}
+                />
               </div>
             </div>
           ))}
