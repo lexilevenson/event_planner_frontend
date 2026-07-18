@@ -4,10 +4,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { getProposedTimes, computeTimes, finalizeTime } from '@/lib/api'
 import { formatHour } from '@/lib/utils'
+import confetti from 'canvas-confetti'
 
 export default function ResultsPage() {
   const { plan_id } = useParams<{ plan_id: string }>()
   const [times, setTimes] = useState<any[]>([])
+  const [totalParticipants, setTotalParticipants] = useState(0)
   const [loading, setLoading] = useState(true)
   const [computing, setComputing] = useState(false)
   const [finalizing, setFinalizing] = useState<string | null>(null)
@@ -17,7 +19,8 @@ export default function ResultsPage() {
     setLoading(true)
     try {
       const data = await getProposedTimes(plan_id)
-      setTimes(data)
+      setTimes(data.times)
+      setTotalParticipants(data.total_participants)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -50,6 +53,12 @@ export default function ResultsPage() {
       setTimes(times.map(t =>
         t.proposed_time_id === proposedTimeId ? { ...t, is_finalized: true } : t
       ))
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#FF6B47', '#4CAF50', '#FFD700', '#87CEEB'],
+      })
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -68,8 +77,8 @@ export default function ResultsPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-16" style={{ background: 'var(--background)' }}>
-      <div className="max-w-md mx-auto">
+    <main className="min-h-screen px-4 py-16" style={{ background: 'linear-gradient(135deg, #FAFAF8 0%, #FFF0ED 100%)' }}>
+      <div className="max-w-md mx-auto fade-in">
 
         {/* Header */}
         <div className="mb-8">
@@ -91,12 +100,13 @@ export default function ResultsPage() {
 
         {/* Finalized banner */}
         {finalized && (
-          <div className="rounded-2xl p-5 mb-6" style={{ background: '#F0FFF4', border: '1.5px solid #4CAF50' }}>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#4CAF50' }}>
+          <div className="rounded-2xl p-6 mb-6 text-center" style={{ background: 'linear-gradient(135deg, #F0FFF4, #DCFCE7)', border: '2px solid #4CAF50', boxShadow: '0 4px 20px rgba(76,175,80,0.15)' }}>
+            <p className="text-2xl mb-2">🎉</p>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#4CAF50' }}>
               Event confirmed!
             </p>
-            <p className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>{finalized.date}</p>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--gray-mid)' }}>
+            <p className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>{finalized.date}</p>
+            <p className="text-base mt-1" style={{ color: 'var(--gray-mid)' }}>
               {formatHour(finalized.time_start)} – {formatHour(finalized.time_end)}
             </p>
           </div>
@@ -112,35 +122,51 @@ export default function ResultsPage() {
             </p>
           </div>
         ) : (
-          <ul className="space-y-3 mb-5">
-            {times.map(t => (
-              <li key={t.proposed_time_id}
-                className="rounded-2xl p-4 flex justify-between items-center"
-                style={{
-                  background: t.is_finalized ? '#F0FFF4' : '#fff',
-                  border: `1.5px solid ${t.is_finalized ? '#4CAF50' : 'var(--gray-soft)'}`,
-                }}>
-                <div>
-                  <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>{t.date}</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--gray-mid)' }}>
-                    {formatHour(t.time_start)} – {formatHour(t.time_end)}
-                  </p>
-                </div>
-                {t.is_finalized ? (
-                  <span className="text-xs font-semibold" style={{ color: '#4CAF50' }}>Confirmed ✓</span>
-                ) : (
-                  <button
-                    onClick={() => handleFinalize(t.proposed_time_id)}
-                    disabled={!!finalizing}
-                    className="px-4 py-1.5 rounded-xl text-xs font-semibold text-white disabled:opacity-50"
-                    style={{ background: 'var(--coral)' }}
-                  >
-                    {finalizing === t.proposed_time_id ? '...' : 'Finalize'}
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+          <>
+            {totalParticipants > 0 && times[0]?.vote_count < totalParticipants && (
+              <div className="rounded-2xl px-4 py-3 mb-4 text-sm"
+                style={{ background: '#FFF8ED', border: '1px solid #F5C842', color: '#9A6E00' }}>
+                No time works for everyone. Here's the best we could find:
+              </div>
+            )}
+            <ul className="space-y-3 mb-5">
+              {times.map(t => {
+                const isPartial = totalParticipants > 0 && t.vote_count < totalParticipants
+                return (
+                  <li key={t.proposed_time_id}
+                    className="rounded-2xl p-4 flex justify-between items-center"
+                    style={{
+                      background: t.is_finalized ? '#F0FFF4' : '#fff',
+                      border: `1.5px solid ${t.is_finalized ? '#4CAF50' : 'var(--gray-soft)'}`,
+                    }}>
+                    <div>
+                      <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>{t.date}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--gray-mid)' }}>
+                        {formatHour(t.time_start)} – {formatHour(t.time_end)}
+                      </p>
+                      {isPartial && (
+                        <p className="text-xs mt-1" style={{ color: '#9A6E00' }}>
+                          Works for {t.vote_count} of {totalParticipants} people
+                        </p>
+                      )}
+                    </div>
+                    {t.is_finalized ? (
+                      <span className="text-xs font-semibold" style={{ color: '#4CAF50' }}>Confirmed ✓</span>
+                    ) : (
+                      <button
+                        onClick={() => handleFinalize(t.proposed_time_id)}
+                        disabled={!!finalizing}
+                        className="px-4 py-1.5 rounded-xl text-xs font-semibold text-white disabled:opacity-50 btn-bounce"
+                        style={{ background: 'var(--coral)' }}
+                      >
+                        {finalizing === t.proposed_time_id ? '...' : 'Finalize'}
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </>
         )}
 
         {/* Compute / Recompute button */}

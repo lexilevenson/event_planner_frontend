@@ -21,3 +21,32 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, sans-serif;
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 107, 71, 0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+
+.btn-bounce {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-bounce:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(255, 107, 71, 0.25);
+}
+.btn-bounce:active {
+  transform: scale(0.98);
+}
+
+.pulse-coral {
+  animation: pulse-soft 2s infinite;
+}

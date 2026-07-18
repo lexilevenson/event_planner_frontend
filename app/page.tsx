@@ -39,25 +39,25 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16"
-      style={{ background: 'var(--background)' }}>
+      style={{ background: 'linear-gradient(135deg, #FAFAF8 0%, #FFF0ED 100%)' }}>
 
       {/* Header */}
-      <div className="mb-10 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-4"
-          style={{ background: 'var(--coral)' }}>
-          <span className="text-white text-xl">📅</span>
+      <div className="mb-10 text-center fade-in">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4"
+          style={{ background: 'var(--coral)', boxShadow: '0 4px 20px rgba(255,107,71,0.35)' }}>
+          <span className="text-white text-2xl">📅</span>
         </div>
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
           Event Planner
         </h1>
         <p className="mt-2 text-sm" style={{ color: 'var(--gray-mid)' }}>
-          Find a time that works for everyone
+          Let's find a time that works for everyone
         </p>
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-md rounded-3xl p-8 shadow-sm"
-        style={{ background: '#fff', border: '1px solid var(--gray-soft)' }}>
+      <div className="w-full max-w-md rounded-3xl p-8 shadow-sm fade-in"
+        style={{ background: '#fff', border: '1px solid var(--gray-soft)', animationDelay: '0.1s' }}>
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
@@ -153,7 +153,7 @@ export default function Home() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-2xl text-sm font-semibold text-white transition-opacity disabled:opacity-50"
+            className="w-full py-3.5 rounded-2xl text-sm font-semibold text-white disabled:opacity-50 btn-bounce"
             style={{ background: 'var(--coral)' }}
           >
             {loading ? 'Creating your plan...' : 'Create Plan →'}

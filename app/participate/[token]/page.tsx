@@ -58,8 +58,8 @@ function EventStatus({ plan, respondedCount, totalCount, proposedTimes, isHost, 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
   return (
-    <main className="min-h-screen px-4 py-16" style={{ background: 'var(--background)' }}>
-      <div className="max-w-md mx-auto">
+    <main className="min-h-screen px-4 py-16" style={{ background: 'linear-gradient(135deg, #FAFAF8 0%, #FFF0ED 100%)' }}>
+      <div className="max-w-md mx-auto fade-in">
 
         {/* Header */}
         <div className="mb-8">
@@ -88,12 +88,13 @@ function EventStatus({ plan, respondedCount, totalCount, proposedTimes, isHost, 
 
         {/* Finalized or proposed times */}
         {finalized ? (
-          <div className="rounded-2xl p-5 mb-6" style={{ background: '#F0FFF4', border: '1.5px solid #4CAF50' }}>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#4CAF50' }}>
+          <div className="rounded-2xl p-6 mb-6 text-center" style={{ background: 'linear-gradient(135deg, #F0FFF4, #DCFCE7)', border: '2px solid #4CAF50', boxShadow: '0 4px 20px rgba(76,175,80,0.15)' }}>
+            <p className="text-2xl mb-2">🎉</p>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#4CAF50' }}>
               Event confirmed!
             </p>
-            <p className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>{finalized.date}</p>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--gray-mid)' }}>
+            <p className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>{finalized.date}</p>
+            <p className="text-base mt-1" style={{ color: 'var(--gray-mid)' }}>
               {formatHour(finalized.time_start)} – {formatHour(finalized.time_end)}
             </p>
           </div>
@@ -207,7 +208,7 @@ export default function ParticipatePage() {
           setStatusData({
             respondedCount: data.responded_count,
             totalCount: data.total_count,
-            proposedTimes: proposed,
+            proposedTimes: proposed.times,
           })
         }
       })
@@ -234,23 +235,23 @@ export default function ParticipatePage() {
     }))
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function submitSlots(slotsToSubmit: Slot[]) {
     setSubmitting(true)
     setError('')
     try {
-      const result = await submitAvailability(token, slots)
+      const result = await submitAvailability(token, slotsToSubmit)
 
-      let proposed: any[] = []
+      let proposedTimes: any[] = []
       if (result.all_responded) {
         await computeTimes(planId)
-        proposed = await getProposedTimes(planId)
+        const proposed = await getProposedTimes(planId)
+        proposedTimes = proposed.times
       }
 
       setStatusData({
         respondedCount: result.responded_count,
         totalCount: result.total_count,
-        proposedTimes: proposed,
+        proposedTimes,
       })
       setHasResponded(true)
     } catch (err: any) {
@@ -258,6 +259,11 @@ export default function ParticipatePage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    await submitSlots(slots)
   }
 
   if (loading) {
@@ -302,8 +308,8 @@ export default function ParticipatePage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-16" style={{ background: 'var(--background)' }}>
-      <div className="max-w-md mx-auto">
+    <main className="min-h-screen px-4 py-16" style={{ background: 'linear-gradient(135deg, #FAFAF8 0%, #FFF0ED 100%)' }}>
+      <div className="max-w-md mx-auto fade-in">
 
         {/* Header */}
         <div className="mb-8">
@@ -319,8 +325,8 @@ export default function ParticipatePage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
-            When are you available?
+          <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
+            Hey! When works for you? 👋
           </h2>
 
           {slots.map((slot, i) => (
@@ -400,10 +406,20 @@ export default function ParticipatePage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 rounded-2xl text-sm font-semibold text-white transition-opacity disabled:opacity-50"
+            className="w-full py-3.5 rounded-2xl text-sm font-semibold text-white disabled:opacity-50 btn-bounce pulse-coral"
             style={{ background: 'var(--coral)' }}
           >
             {submitting ? 'Submitting...' : 'Submit Availability →'}
+          </button>
+
+          <button
+            type="button"
+            disabled={submitting}
+            onClick={() => submitSlots([])}
+            className="w-full py-3 rounded-2xl text-sm font-medium transition-opacity disabled:opacity-50"
+            style={{ border: '1.5px solid var(--gray-soft)', color: 'var(--gray-mid)', background: 'transparent' }}
+          >
+            None of these dates work for me
           </button>
         </form>
       </div>

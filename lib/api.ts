@@ -60,7 +60,7 @@ export async function computeTimes(planId: string) {
   return res.json()
 }
 
-export async function getProposedTimes(planId: string) {
+export async function getProposedTimes(planId: string): Promise<{ times: any[]; total_participants: number }> {
   const res = await fetch(`${API_URL}/plans/${planId}/proposed-times`)
   if (!res.ok) await handleError(res)
   return res.json()
